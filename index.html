@@ -482,6 +482,183 @@
       letter-spacing: 0.1em;
     }
 
+    /* ── WALL OF COMMITS ── */
+    .wall {
+      border-top: 1px solid var(--gray-light);
+      border-bottom: 1px solid var(--gray-light);
+    }
+
+    .wall-instructions {
+      background: #0f0f0f;
+      border: 1px solid var(--gray-light);
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 2.5rem;
+    }
+
+    .wall-instr-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 1.5rem;
+      background: var(--gray);
+      border-bottom: 1px solid var(--gray-light);
+    }
+
+    .wall-instr-title { font-weight: 700; font-size: 0.95rem; }
+
+    .wall-badge {
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      padding: 0.25rem 0.65rem;
+      background: var(--orange-dim);
+      color: var(--orange);
+      border: 1px solid var(--orange);
+      border-radius: 100px;
+      letter-spacing: 0.08em;
+    }
+
+    .instr-steps {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+    }
+
+    .instr-step {
+      display: flex;
+      gap: 1rem;
+      padding: 1.5rem;
+      border-right: 1px solid var(--gray-light);
+      border-bottom: 1px solid var(--gray-light);
+      align-items: flex-start;
+    }
+
+    .instr-step:nth-child(2n) { border-right: none; }
+    .instr-step:nth-last-child(-n+2) { border-bottom: none; }
+
+    .instr-num {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: var(--orange);
+      color: #000;
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .instr-label { font-size: 0.88rem; font-weight: 700; margin-bottom: 0.5rem; }
+
+    .instr-label code, .instr-note code {
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      color: var(--orange);
+      background: var(--orange-dim);
+      padding: 0.1rem 0.35rem;
+      border-radius: 3px;
+    }
+
+    .instr-code {
+      font-family: var(--mono);
+      font-size: 0.76rem;
+      background: var(--black);
+      border: 1px solid var(--gray-light);
+      border-left: 3px solid var(--orange);
+      padding: 0.65rem 0.85rem;
+      border-radius: 4px;
+      color: var(--white);
+      line-height: 1.8;
+      white-space: pre;
+      overflow-x: auto;
+      margin: 0.5rem 0;
+    }
+
+    .instr-note {
+      font-size: 0.78rem;
+      color: var(--muted);
+      line-height: 1.5;
+      margin-top: 0.4rem;
+      font-weight: 400;
+    }
+
+    .commit-wall {
+      background: var(--gray);
+      border: 1px solid var(--gray-light);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .cw-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 1.25rem;
+      background: #1a1a1a;
+      border-bottom: 1px solid var(--gray-light);
+    }
+
+    .cw-title {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--muted);
+      letter-spacing: 0.12em;
+    }
+
+    .cw-branch {
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      color: #bd93f9;
+      background: rgba(189,147,249,0.1);
+      padding: 0.2rem 0.55rem;
+      border-radius: 3px;
+    }
+
+    .cw-body { padding: 1rem 0; }
+
+    .commit-entry {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      padding: 0.75rem 1.5rem;
+      border-bottom: 1px solid #1e1e1e;
+      transition: background 0.2s;
+    }
+
+    .commit-entry:last-of-type { border-bottom: none; }
+    .commit-entry:hover { background: rgba(255,255,255,0.02); }
+    .commit-entry.example { opacity: 0.5; }
+
+    .ce-check { color: #27c93f; font-size: 0.85rem; flex-shrink: 0; }
+
+    .ce-name {
+      font-family: var(--mono);
+      font-size: 0.85rem;
+      color: var(--white);
+      font-weight: 700;
+      min-width: 160px;
+    }
+
+    .ce-msg {
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    .ce-placeholder {
+      padding: 1.25rem 1.5rem;
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      color: #444;
+    }
+
+    @media (max-width: 768px) {
+      .instr-steps { grid-template-columns: 1fr; }
+      .instr-step { border-right: none; }
+      .instr-step:nth-last-child(-n+2) { border-bottom: 1px solid var(--gray-light); }
+      .instr-step:last-child { border-bottom: none; }
+    }
+
     /* ── ANIMATIONS ── */
     @keyframes fadeUp {
       from { opacity: 0; transform: translateY(20px); }
@@ -785,6 +962,77 @@
       <h3>Push &amp; Open PR</h3>
       <code>git push origin yourname/intro</code>
       <p>Open a Pull Request on GitHub to merge your branch.</p>
+    </div>
+  </div>
+</section>
+
+<!-- WALL OF COMMITS -->
+<section class="wall" id="wall">
+  <div class="section-label">// Activity — Wall of Commits</div>
+  <h2>Sign the Wall</h2>
+
+  <div class="wall-instructions">
+    <div class="wall-instr-header">
+      <span class="wall-instr-title">Your Mission</span>
+      <span class="wall-badge">Do this in order!</span>
+    </div>
+    <div class="instr-steps">
+      <div class="instr-step">
+        <div class="instr-num">1</div>
+        <div class="instr-body">
+          <div class="instr-label">Pull the latest changes first</div>
+          <div class="instr-code">git pull origin main</div>
+          <div class="instr-note">Someone may have pushed before you — always pull first to avoid conflicts!</div>
+        </div>
+      </div>
+      <div class="instr-step">
+        <div class="instr-num">2</div>
+        <div class="instr-body">
+          <div class="instr-label">Open <code>index.html</code> and find the Wall of Commits section</div>
+          <div class="instr-note">Look for the comment that says <code>&lt;!-- ADD YOUR NAME BELOW THIS LINE --&gt;</code> and add a new entry below the last name on the list.</div>
+          <div class="instr-code">&lt;div class="commit-entry"&gt;
+  &lt;span class="ce-check"&gt;✔&lt;/span&gt;
+  &lt;span class="ce-name"&gt;Your Name&lt;/span&gt;
+  &lt;span class="ce-msg"&gt;was here&lt;/span&gt;
+&lt;/div&gt;</div>
+        </div>
+      </div>
+      <div class="instr-step">
+        <div class="instr-num">3</div>
+        <div class="instr-body">
+          <div class="instr-label">Stage and commit your change</div>
+          <div class="instr-code">git add index.html
+git commit -m "add: [Your Name] was here"</div>
+        </div>
+      </div>
+      <div class="instr-step">
+        <div class="instr-num">4</div>
+        <div class="instr-body">
+          <div class="instr-label">Push to the shared repository</div>
+          <div class="instr-code">git push origin main</div>
+          <div class="instr-note">If this fails, someone pushed while you were working. Run <code>git pull origin main</code> again, then push.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="commit-wall">
+    <div class="cw-header">
+      <span class="cw-title">commit log</span>
+      <span class="cw-branch">branch: main</span>
+    </div>
+    <div class="cw-body">
+
+      <!-- Example entries — students can see the pattern -->
+      <div class="commit-entry example">
+        <span class="ce-check">✔</span>
+        <span class="ce-name">Patricia Visda</span>
+        <span class="ce-msg">was here — initial commit </span>
+      </div>
+
+      <!-- ADD YOUR NAME BELOW THIS LINE -->
+      <!-- Duplicate the sample entry above -->
+
     </div>
   </div>
 </section>
