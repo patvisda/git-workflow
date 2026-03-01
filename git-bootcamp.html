@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Version Control with Git & GitHub Essentials</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --black: #0a0a0a;
+      --white: #f5f2eb;
+      --orange: #ff5c1a;
+      --orange-dim: #ff5c1a22;
+      --gray: #1e1e1e;
+      --gray-light: #2e2e2e;
+      --muted: #888;
+      --mono: 'Space Mono', monospace;
+      --sans: 'Syne', sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--black);
+      color: var(--white);
+      font-family: var(--sans);
+      overflow-x: hidden;
+    }
+
+    /* ── NOISE OVERLAY ── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 9999; opacity: 0.35;
+    }
+
+    /* ── HEADER ── */
+    header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.4rem 5vw;
+      border-bottom: 1px solid var(--gray-light);
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(10,10,10,0.92);
+      backdrop-filter: blur(12px);
+    }
+
+    .logo {
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      color: var(--orange);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .badge {
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      padding: 0.35rem 0.75rem;
+      border: 1px solid var(--orange);
+      color: var(--orange);
+      letter-spacing: 0.1em;
+      border-radius: 2px;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 88vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+      padding: 0 5vw;
+      align-items: center;
+      position: relative;
+      border-bottom: 1px solid var(--gray-light);
+    }
+
+    .hero::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 60% 80% at 70% 50%, #ff5c1a10 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-left {
+      padding: 6rem 0;
+      animation: fadeUp 0.9s ease both;
+    }
+
+    .eyebrow {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--orange);
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      margin-bottom: 1.5rem;
+      display: flex; align-items: center; gap: 0.6rem;
+    }
+
+    .eyebrow::before {
+      content: '';
+      width: 28px; height: 1px;
+      background: var(--orange);
+    }
+
+    h1 {
+      font-size: clamp(2.8rem, 5vw, 5rem);
+      font-weight: 800;
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+      margin-bottom: 1.5rem;
+    }
+
+    h1 span {
+      color: var(--orange);
+      display: block;
+    }
+
+    .hero-desc {
+      font-size: 1.1rem;
+      color: var(--muted);
+      line-height: 1.7;
+      max-width: 480px;
+      margin-bottom: 2.5rem;
+      font-weight: 400;
+    }
+
+    .instructor-chip {
+      display: inline-flex; align-items: center; gap: 0.75rem;
+      padding: 0.6rem 1.1rem;
+      border: 1px solid var(--gray-light);
+      border-radius: 100px;
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      color: var(--white);
+      background: var(--gray);
+    }
+
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--orange); animation: pulse 1.8s infinite; }
+
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+    .hero-right {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4rem 0;
+      animation: fadeUp 0.9s 0.2s ease both;
+    }
+
+    /* ── TERMINAL ── */
+    .terminal {
+      width: 100%;
+      max-width: 480px;
+      background: var(--gray);
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid #333;
+      box-shadow: 0 40px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,92,26,0.08);
+    }
+
+    .terminal-bar {
+      background: #1a1a1a;
+      padding: 0.75rem 1rem;
+      display: flex; align-items: center; gap: 0.5rem;
+      border-bottom: 1px solid #333;
+    }
+
+    .tb { width: 12px; height: 12px; border-radius: 50%; }
+    .tb-r { background: #ff5f56; }
+    .tb-y { background: #ffbd2e; }
+    .tb-g { background: #27c93f; }
+
+    .terminal-title { font-family: var(--mono); font-size: 0.7rem; color: var(--muted); margin-left: auto; margin-right: auto; }
+
+    .terminal-body { padding: 1.5rem; font-family: var(--mono); font-size: 0.8rem; line-height: 2; }
+
+    .t-line { display: flex; gap: 0.5rem; }
+    .t-prompt { color: var(--orange); }
+    .t-cmd { color: #e8e8e8; }
+    .t-output { color: var(--muted); padding-left: 1rem; }
+    .t-success { color: #27c93f; }
+    .t-branch { color: #bd93f9; }
+    .t-cursor { display: inline-block; width: 8px; height: 14px; background: var(--orange); animation: blink 1s steps(1) infinite; vertical-align: middle; }
+
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+    /* ── SECTION STYLES ── */
+    section { padding: 5rem 5vw; }
+
+    .section-label {
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      color: var(--orange);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      margin-bottom: 0.75rem;
+    }
+
+    h2 {
+      font-size: clamp(1.8rem, 3vw, 2.8rem);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 3rem;
+      line-height: 1.1;
+    }
+
+    /* ── WORKFLOW SECTION ── */
+    .workflow { border-bottom: 1px solid var(--gray-light); }
+
+    .flow-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.5px;
+      background: var(--gray-light);
+      border: 1px solid var(--gray-light);
+    }
+
+    .flow-card {
+      background: var(--black);
+      padding: 2rem;
+      position: relative;
+      overflow: hidden;
+      transition: background 0.3s;
+    }
+
+    .flow-card:hover { background: #111; }
+
+    .flow-card::before {
+      content: attr(data-num);
+      position: absolute;
+      top: 1.2rem; right: 1.5rem;
+      font-family: var(--mono);
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #ffffff08;
+      line-height: 1;
+    }
+
+    .flow-icon {
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      color: var(--orange);
+      background: var(--orange-dim);
+      padding: 0.3rem 0.6rem;
+      border-radius: 3px;
+      display: inline-block;
+      margin-bottom: 1rem;
+    }
+
+    .flow-card h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 0.6rem;
+    }
+
+    .flow-card p {
+      font-size: 0.85rem;
+      color: var(--muted);
+      line-height: 1.6;
+      font-family: var(--sans);
+      font-weight: 400;
+    }
+
+    /* ── COMMANDS TABLE ── */
+    .commands { border-bottom: 1px solid var(--gray-light); }
+
+    .cmd-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+    }
+
+    .cmd-group h3 {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--orange);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--gray-light);
+    }
+
+    .cmd-item {
+      display: grid;
+      grid-template-columns: 1fr 1.4fr;
+      gap: 1rem;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid #1a1a1a;
+      align-items: start;
+    }
+
+    .cmd-code {
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      color: var(--white);
+      background: var(--gray);
+      padding: 0.3rem 0.6rem;
+      border-radius: 4px;
+      border-left: 2px solid var(--orange);
+      word-break: break-all;
+    }
+
+    .cmd-desc {
+      font-size: 0.82rem;
+      color: var(--muted);
+      font-weight: 400;
+      line-height: 1.5;
+    }
+
+    /* ── BRANCHING ── */
+    .branching { border-bottom: 1px solid var(--gray-light); }
+
+    .branch-visual {
+      background: var(--gray);
+      border-radius: 8px;
+      padding: 2.5rem;
+      border: 1px solid #2e2e2e;
+      overflow-x: auto;
+      margin-bottom: 2rem;
+    }
+
+    .branch-track {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      min-width: 600px;
+    }
+
+    .branch-row {
+      display: flex;
+      align-items: center;
+      gap: 0;
+    }
+
+    .branch-name {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      width: 100px;
+      color: var(--muted);
+      flex-shrink: 0;
+    }
+
+    .branch-name.main { color: var(--orange); }
+    .branch-name.feature { color: #bd93f9; }
+    .branch-name.fix { color: #27c93f; }
+
+    .branch-line {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 0;
+      position: relative;
+    }
+
+    .commit {
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      background: var(--gray-light);
+      border: 2px solid var(--orange);
+      flex-shrink: 0;
+      z-index: 1;
+    }
+
+    .commit.feat { border-color: #bd93f9; }
+    .commit.fix { border-color: #27c93f; }
+    .commit.merge { background: var(--orange); border-color: var(--orange); }
+
+    .line-seg {
+      height: 2px;
+      background: var(--gray-light);
+      flex: 1;
+    }
+
+    .line-seg.main-color { background: #ff5c1a44; }
+    .line-seg.feat-color { background: #bd93f944; }
+    .line-seg.fix-color { background: #27c93f44; }
+
+    .commit-label {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      color: var(--muted);
+      margin-top: 0.3rem;
+      text-align: center;
+      position: absolute;
+      top: 12px;
+      transform: translateX(-50%);
+      white-space: nowrap;
+    }
+
+    .commit-wrapper { position: relative; display: flex; flex-direction: column; align-items: center; }
+
+    .practices-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1rem;
+    }
+
+    .practice-card {
+      padding: 1.5rem;
+      border: 1px solid var(--gray-light);
+      border-radius: 6px;
+      position: relative;
+      transition: border-color 0.3s, transform 0.3s;
+    }
+
+    .practice-card:hover { border-color: var(--orange); transform: translateY(-3px); }
+
+    .practice-card .icon {
+      font-size: 1.4rem;
+      margin-bottom: 0.75rem;
+      display: block;
+    }
+
+    .practice-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 0.4rem; }
+    .practice-card p { font-size: 0.82rem; color: var(--muted); line-height: 1.6; font-weight: 400; }
+
+    /* ── ACTIVITY SECTION ── */
+    .activity {
+      background: var(--gray);
+      border-top: 1px solid var(--gray-light);
+      border-bottom: 1px solid var(--gray-light);
+    }
+
+    .activity-steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 0;
+    }
+
+    .step {
+      padding: 2rem;
+      border-right: 1px solid var(--gray-light);
+      position: relative;
+    }
+
+    .step:last-child { border-right: none; }
+
+    .step-num {
+      font-family: var(--mono);
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--orange);
+      margin-bottom: 0.75rem;
+      opacity: 0.5;
+    }
+
+    .step h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.5rem; }
+
+    .step code {
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      color: var(--orange);
+      background: rgba(255,92,26,0.1);
+      padding: 0.15rem 0.4rem;
+      border-radius: 3px;
+    }
+
+    .step p { font-size: 0.8rem; color: var(--muted); line-height: 1.6; margin-top: 0.4rem; font-weight: 400; }
+
+    /* ── FOOTER ── */
+    footer {
+      padding: 3rem 5vw;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .footer-left .name { font-size: 1rem; font-weight: 700; }
+    .footer-left .role { font-family: var(--mono); font-size: 0.72rem; color: var(--muted); margin-top: 0.2rem; }
+
+    .footer-right {
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      color: var(--muted);
+      letter-spacing: 0.1em;
+    }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      .hero { grid-template-columns: 1fr; min-height: auto; }
+      .hero-right { padding-top: 0; }
+      .cmd-grid { grid-template-columns: 1fr; }
+      .step { border-right: none; border-bottom: 1px solid var(--gray-light); }
+      .step:last-child { border-bottom: none; }
+      footer { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">$ git --bootcamp</div>
+  <div class="badge">Instructor: Patricia Visda</div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-left">
+    <div class="eyebrow">Bootcamp Essentials</div>
+    <h1>Version Control<span>with Git &amp; GitHub</span></h1>
+    <p class="hero-desc">Learn how developers manage, protect, and collaborate on code. Master the workflows that power every modern software team.</p>
+    <div class="instructor-chip">
+      <span class="dot"></span>
+      Facilitated by Patricia Visda
+    </div>
+  </div>
+
+  <div class="hero-right">
+    <div class="terminal">
+      <div class="terminal-bar">
+        <div class="tb tb-r"></div>
+        <div class="tb tb-y"></div>
+        <div class="tb tb-g"></div>
+        <div class="terminal-title">bash — ~/my-project</div>
+      </div>
+      <div class="terminal-body">
+        <div class="t-line"><span class="t-prompt">$</span><span class="t-cmd"> git init</span></div>
+        <div class="t-line t-success">&nbsp;&nbsp;Initialized empty Git repository in .git/</div>
+        <div class="t-line"><span class="t-prompt">$</span><span class="t-cmd"> git add .</span></div>
+        <div class="t-line"><span class="t-prompt">$</span><span class="t-cmd"> git commit -m "initial commit"</span></div>
+        <div class="t-line t-success">&nbsp;&nbsp;[main (root)] 1 file changed</div>
+        <div class="t-line"><span class="t-prompt">$</span><span class="t-cmd"> git checkout -b feature/login</span></div>
+        <div class="t-line t-branch">&nbsp;&nbsp;Switched to a new branch 'feature/login'</div>
+        <div class="t-line"><span class="t-prompt">$</span><span class="t-cmd"> git push origin feature/login</span></div>
+        <div class="t-line t-success">&nbsp;&nbsp;Branch 'feature/login' set upstream</div>
+        <div class="t-line"><span class="t-prompt">$</span><span class="t-cursor"></span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WORKFLOW OVERVIEW -->
+<section class="workflow">
+  <div class="section-label">// Core Git Workflow</div>
+  <h2>From Zero to Commit</h2>
+  <div class="flow-grid">
+    <div class="flow-card" data-num="01">
+      <div class="flow-icon">git init</div>
+      <h3>Initialize</h3>
+      <p>Set up a new local repository or clone an existing one from GitHub. This creates the .git folder that tracks everything.</p>
+    </div>
+    <div class="flow-card" data-num="02">
+      <div class="flow-icon">git add</div>
+      <h3>Stage Changes</h3>
+      <p>Move modified files to the staging area. Only staged changes will be included in the next commit. Use <code style="font-family:monospace;color:var(--orange)">git add .</code> for all files.</p>
+    </div>
+    <div class="flow-card" data-num="03">
+      <div class="flow-icon">git commit</div>
+      <h3>Commit</h3>
+      <p>Save a snapshot of staged changes with a descriptive message. Commits are permanent checkpoints in your project's history.</p>
+    </div>
+    <div class="flow-card" data-num="04">
+      <div class="flow-icon">git push</div>
+      <h3>Push</h3>
+      <p>Upload your local commits to the remote repository on GitHub so teammates can see and collaborate on your work.</p>
+    </div>
+    <div class="flow-card" data-num="05">
+      <div class="flow-icon">git pull</div>
+      <h3>Pull</h3>
+      <p>Fetch and merge the latest changes from the remote into your local branch. Always pull before starting new work.</p>
+    </div>
+    <div class="flow-card" data-num="06">
+      <div class="flow-icon">git merge</div>
+      <h3>Merge &amp; PR</h3>
+      <p>Integrate branches back together. On GitHub, use Pull Requests for code review before merging into the main branch.</p>
+    </div>
+  </div>
+</section>
+
+<!-- COMMANDS REFERENCE -->
+<section class="commands">
+  <div class="section-label">// Quick Reference</div>
+  <h2>Essential Commands</h2>
+  <div class="cmd-grid">
+    <div class="cmd-group">
+      <h3>Setup &amp; Config</h3>
+      <div class="cmd-item">
+        <div class="cmd-code">git config --global user.name</div>
+        <div class="cmd-desc">Set your name for all commits</div>
+      </div>
+      <div class="cmd-item">
+        <div class="cmd-code">git config --global user.email</div>
+        <div class="cmd-desc">Set your email for all commits</div>
+      </div>
+      <div class="cmd-item">
+        <div class="cmd-code">git init</div>
+        <div class="cmd-desc">Initialize a new local repository</div>
+      </div>
+      <div class="cmd-item">
+        <div class="cmd-code">git clone &lt;url&gt;</div>
+        <div class="cmd-desc">Clone a remote repository locally</div>
+      </div>
+      <h3 style="margin-top:1.5rem">Staging &amp; Commits</h3>
+      <div class="cmd-item">
+        <div class="cmd-code">git status</div>
+        <div class="cmd-desc">Show working tree and staged changes</div>
+      </div>
+      <div class="cmd-item">
+        <div class="cmd-code">git add &lt;file&gt;</div>
+        <div class="cmd-desc">Stage a specific file</div>
+      </div>
+      <div class="cmd-item">
+        <div class="cmd-code">git add .</div>
+        <div class="cmd-desc">Stage all changes in current directory</div>
+      </div>
+      <div class="cmd-item">
+        <div class="cmd-code">git commit -m "msg"</div>
+        <div class="cmd-desc">Commit staged changes with a message</div>
+      </div>
+      <div class="cmd-item">
+        <div class="cmd-code">git log --oneline</div>
+        <div class="cmd-desc">View compact commit history</div>
+      </div>
+    </div>
+    <div class="cmd-group">
+      <h3>Branching</h3>
+      <div class="cmd-item">
+        <div class="cmd-code">git branch</div>
+        <div class="cmd-desc">List all local branches</div>
+      </div>
+      <div class="cmd-item">
+        <div class="cmd-code">git branch &lt;name&gt;</div>
+        <div class="cmd-desc">Create a new branch</div>
+      </div>
+      <div class="cmd-item">
+        <div class="cmd-code">git checkout &lt;name&gt;</div>
+        <div class="cmd-desc">Switch to an existing branch</div>
+      </div>
+      <div class="cmd-item">
+        <div class="cmd-code">git checkout -b &lt;name&gt;</div>
+        <div class="cmd-desc">Create and switch to a new branch</div>
+      </div>
+      <div class="cmd-item">
+        <div class="cmd-code">git merge &lt;branch&gt;</div>
+        <div class="cmd-desc">Merge a branch into the current one</div>
+      </div>
+      <h3 style="margin-top:1.5rem">Remote &amp; Sync</h3>
+      <div class="cmd-item">
+        <div class="cmd-code">git remote -v</div>
+        <div class="cmd-desc">Show connected remote repositories</div>
+      </div>
+      <div class="cmd-item">
+        <div class="cmd-code">git push origin &lt;branch&gt;</div>
+        <div class="cmd-desc">Push branch to remote</div>
+      </div>
+      <div class="cmd-item">
+        <div class="cmd-code">git pull origin &lt;branch&gt;</div>
+        <div class="cmd-desc">Pull and merge from remote branch</div>
+      </div>
+      <div class="cmd-item">
+        <div class="cmd-code">git fetch</div>
+        <div class="cmd-desc">Download remote changes without merging</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BRANCHING STRATEGY -->
+<section class="branching">
+  <div class="section-label">// Branching Strategy</div>
+  <h2>Branch, Commit, Merge</h2>
+  <div class="branch-visual">
+    <div class="branch-track">
+      <div class="branch-row">
+        <div class="branch-name main">main</div>
+        <div class="branch-line">
+          <div class="commit-wrapper"><div class="commit merge"></div><div class="commit-label">init</div></div>
+          <div class="line-seg main-color" style="flex:2"></div>
+          <div class="commit-wrapper"><div class="commit"></div><div class="commit-label">v1.0</div></div>
+          <div class="line-seg main-color" style="flex:4"></div>
+          <div class="commit-wrapper"><div class="commit merge"></div><div class="commit-label">merge feat</div></div>
+          <div class="line-seg main-color" style="flex:2"></div>
+          <div class="commit-wrapper"><div class="commit merge"></div><div class="commit-label">merge fix</div></div>
+          <div class="line-seg main-color" style="flex:3"></div>
+        </div>
+      </div>
+      <div class="branch-row">
+        <div class="branch-name feature">feature/login</div>
+        <div class="branch-line">
+          <div class="line-seg" style="flex:1;background:transparent"></div>
+          <div class="line-seg feat-color" style="flex:2"></div>
+          <div class="commit-wrapper"><div class="commit feat"></div><div class="commit-label">add form</div></div>
+          <div class="line-seg feat-color" style="flex:2"></div>
+          <div class="commit-wrapper"><div class="commit feat"></div><div class="commit-label">add auth</div></div>
+          <div class="line-seg feat-color" style="flex:2"></div>
+          <div class="commit-wrapper"><div class="commit feat"></div><div class="commit-label">tests</div></div>
+          <div class="line-seg" style="flex:3;background:transparent"></div>
+        </div>
+      </div>
+      <div class="branch-row">
+        <div class="branch-name fix">hotfix/bug</div>
+        <div class="branch-line">
+          <div class="line-seg" style="flex:4;background:transparent"></div>
+          <div class="line-seg fix-color" style="flex:2"></div>
+          <div class="commit-wrapper"><div class="commit fix"></div><div class="commit-label">fix null</div></div>
+          <div class="line-seg fix-color" style="flex:2"></div>
+          <div class="commit-wrapper"><div class="commit fix"></div><div class="commit-label">tests pass</div></div>
+          <div class="line-seg" style="flex:2;background:transparent"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="practices-grid">
+    <div class="practice-card">
+      <span class="icon">🌿</span>
+      <h3>Branch Per Feature</h3>
+      <p>Always create a new branch for each feature or bug fix. Never commit directly to <code style="font-family:monospace;color:var(--orange);font-size:0.8em">main</code>.</p>
+    </div>
+    <div class="practice-card">
+      <span class="icon">✍️</span>
+      <h3>Descriptive Commit Messages</h3>
+      <p>Write clear, present-tense messages: "Add login form validation" not "stuff" or "fix".</p>
+    </div>
+    <div class="practice-card">
+      <span class="icon">🔄</span>
+      <h3>Pull Before You Push</h3>
+      <p>Always pull the latest remote changes before pushing to avoid merge conflicts.</p>
+    </div>
+    <div class="practice-card">
+      <span class="icon">👁️</span>
+      <h3>Review via Pull Requests</h3>
+      <p>Use GitHub Pull Requests so teammates can review code before it enters the main branch.</p>
+    </div>
+    <div class="practice-card">
+      <span class="icon">🚫</span>
+      <h3>Use .gitignore</h3>
+      <p>Keep secrets, node_modules, and build artifacts out of version control with a .gitignore file.</p>
+    </div>
+    <div class="practice-card">
+      <span class="icon">🔖</span>
+      <h3>Tag Your Releases</h3>
+      <p>Use <code style="font-family:monospace;color:var(--orange);font-size:0.8em">git tag</code> to mark release versions like v1.0.0 for easy reference.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ACTIVITY -->
+<section class="activity">
+  <div class="section-label">// Today's Activity</div>
+  <h2>Practice: Push &amp; Pull</h2>
+  <div class="activity-steps">
+    <div class="step">
+      <div class="step-num">01</div>
+      <h3>Fork the Repo</h3>
+      <p>Fork the shared bootcamp repository to your own GitHub account using the Fork button.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">02</div>
+      <h3>Clone Locally</h3>
+      <code>git clone &lt;your-fork-url&gt;</code>
+      <p>Download your fork to your local machine.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">03</div>
+      <h3>Create a Branch</h3>
+      <code>git checkout -b yourname/intro</code>
+      <p>Never work directly on main!</p>
+    </div>
+    <div class="step">
+      <div class="step-num">04</div>
+      <h3>Make Changes</h3>
+      <p>Edit the <code>students.md</code> file and add your name and a fun fact.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">05</div>
+      <h3>Stage &amp; Commit</h3>
+      <code>git add . &amp;&amp; git commit -m "Add [yourname]"</code>
+    </div>
+    <div class="step">
+      <div class="step-num">06</div>
+      <h3>Push &amp; Open PR</h3>
+      <code>git push origin yourname/intro</code>
+      <p>Open a Pull Request on GitHub to merge your branch.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-left">
+    <div class="name">Patricia Visda</div>
+    <div class="role">// Bootcamp Instructor · Version Control with Git &amp; GitHub Essentials</div>
+  </div>
+  <div class="footer-right">$ git commit -m "keep learning" ▮</div>
+</footer>
+
+</body>
+</html>
